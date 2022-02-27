@@ -4,7 +4,7 @@
   "description": "This is a simple chat app build using soket.io",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "author": "Kishor Balgi",
   "license": "ISC",
