@@ -4,12 +4,21 @@
     <title>Simple Chat App</title>
     <style>
       body {
+        width: 100vw;
         margin: 0;
         padding-bottom: 3rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
       }
-
+      #alert {
+        width: 100vw;
+        height: 30px;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%);
+        background-color: #fff;
+      }
       #form {
         background: rgba(0, 0, 0, 0.15);
         padding: 0.25rem;
@@ -18,9 +27,10 @@
         left: 0;
         right: 0;
         display: flex;
-        height: 3rem;
+        height: 50px;
         box-sizing: border-box;
         backdrop-filter: blur(10px);
+        width: 100vw;
       }
       #input {
         border: none;
@@ -41,31 +51,53 @@
         outline: none;
         color: #fff;
       }
-
+      #form > button:hover {
+        background: blue;
+      }
       #messages {
         list-style-type: none;
-        margin: 0;
-        padding: 0;
+        margin-top: 40px;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
       }
       #messages > li {
-        padding: 0.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        width: 70%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 10px;
+        font-size: 20px;
       }
-      #messages > li:nth-child(odd) {
-        background: #efefef;
+      #messages > li > span {
+        font-size: 13px;
+        color: #ffffff;
+      }
+      .msg-left {
+        align-self: flex-start;
+        background-color: #5757ff;
+      }
+      .msg-right {
+        align-self: flex-end;
+        background: #a436ff;
       }
     </style>
   </head>
   <body>
+    <span id="alert"></span>
     <ul id="messages"></ul>
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+      <input id="input" autocomplete="off" placeholder="Your message" /><button>
+        Send
+      </button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
-
       var form = document.getElementById("form");
       var input = document.getElementById("input");
+      var messages = document.getElementById("messages");
 
       form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -75,11 +107,30 @@
         }
       });
 
-      socket.on("chat message", function (msg) {
-        var item = document.createElement("li");
-        item.textContent = msg;
-        messages.appendChild(item);
+      socket.on("chat message", function (prop) {
+        var ele = `<li class="${
+          socket.id === prop.id ? "msg-right" : "msg-left"
+        }"><span>${socket.id === prop.id ? "You" : prop.id}</span>${
+          prop.msg
+        }</li>`;
+        messages.insertAdjacentHTML("beforeend", ele);
         window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on("user joined", function (user) {
+        const alert = document.getElementById("alert");
+        if (socket.id !== user) {
+          alert.style.backgroundColor = "rgb(167, 167, 255)";
+          alert.textContent = ` User: ${user} joined`;
+        }
+      });
+
+      socket.on("user left", function (user) {
+        const alert = document.getElementById("alert");
+        if (socket.id !== user) {
+          alert.style.backgroundColor = "rgb(255, 97, 97)";
+          alert.textContent = ` User: ${user} left`;
+        }
       });
     </script>
   </body>

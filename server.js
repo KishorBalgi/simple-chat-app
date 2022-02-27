@@ -10,12 +10,15 @@ app.get("/", (req, res) => {
 });
 // Socket.io
 io.on("connection", (socket) => {
-  console.log("A User connected.");
+  //   Send new user joined:
+  io.emit("user joined", socket.id);
+  //   Send Chat:
   socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
+    io.emit("chat message", { msg, id: socket.id });
   });
+  //   User Disconnected:
   socket.on("disconnect", () => {
-    console.log("user disconnected");
+    io.emit("user left", socket.id);
   });
 });
 
